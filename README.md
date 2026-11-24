@@ -2,7 +2,7 @@
 
 # ✦ AuroraCraft Spawn Elytra
 
-[![Build](https://github.com/AuroraCraft-at/SpawnElytra/actions/workflows/build.yml/badge.svg)](https://github.com/AuroraCraft-at/SpawnElytra/actions/workflows/build.yml)
+[![Release](https://github.com/AuroraCraft-at/SpawnElytra/actions/workflows/release.yml/badge.svg)](https://github.com/AuroraCraft-at/SpawnElytra/actions/workflows/release.yml)
 ![Paper 1.21+](https://img.shields.io/badge/Paper-1.21%2B-blue)
 ![Folia](https://img.shields.io/badge/Folia-supported-green)
 ![License MPL-2.0](https://img.shields.io/badge/License-MPL--2.0-orange)
@@ -246,6 +246,7 @@ mit genau dieser Version (inklusive Tests) und hängt `auroracraft-spawnelytra-2
 Release an. Nach ein bis zwei Minuten ist die Jar unter **Assets** zum Download da.
 Die Versionsnummer kommt aus dem Tag, `build.gradle.kts` muss dafür nicht geändert werden.
 Schlägt der Build fehl (z. B. ein Test), bleibt das Release ohne Jar. Den Fehler siehst du unter **Actions**.
+Gebaut wird nur bei einem veröffentlichten Release, nicht bei Pull Requests oder Pushes.
 
 ## Lizenz
 
