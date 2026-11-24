@@ -3,8 +3,9 @@ plugins {
     id("io.github.goooler.shadow") version "8.1.8"
 }
 
-group = "com.blaxk"
-version = "1.5"
+group = "at.auroracraft"
+// Release builds pass the version from the Git tag: ./gradlew build -PreleaseVersion=2.1.0
+version = providers.gradleProperty("releaseVersion").getOrElse("2.0.0")
 
 java {
     toolchain {
@@ -45,12 +46,14 @@ dependencies {
     compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("net.kyori:adventure-api:$adventureVersion")
     
-    implementation("org.apache.commons:commons-lang3:3.18.0")
-    implementation("org.bstats:bstats-bukkit:3.0.2")
     implementation("net.kyori:adventure-text-minimessage:$adventureVersion")
     implementation("net.kyori:adventure-text-serializer-plain:$adventureVersion")
     implementation("net.kyori:adventure-platform-bukkit:$adventurePlatformVersion")
-    implementation("com.google.code.gson:gson:2.11.0")
+
+    testImplementation("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
+    testImplementation(platform("org.junit:junit-bom:5.11.3"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks {
@@ -70,12 +73,14 @@ tasks {
     
     shadowJar {
         archiveClassifier.set("")
-        
-        relocate("org.bstats", "com.blaxk.spawnelytra.metrics")
     }
     
     build {
         dependsOn(shadowJar)
+    }
+
+    test {
+        useJUnitPlatform()
     }
 
     jar {

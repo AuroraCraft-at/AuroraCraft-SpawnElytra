@@ -1,1 +1,1 @@
-rootProject.name = "spawnelytra"
+rootProject.name = "auroracraft-spawnelytra"

@@ -1,0 +1,16 @@
+language: en
+world: world
+activation_mode: sneak_jump
+radius: 75
+strength: 3
+boost_enabled: true
+boost_direction: upward
+disable_fireworks_in_spawn_elytra: false
+spawn:
+  mode: advanced
+  x: 100
+  y: 64
+  z: 200
+  x2: 0
+  y2: 0
+  z2: 0

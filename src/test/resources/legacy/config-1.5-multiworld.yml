@@ -1,0 +1,71 @@
+# Spawn Elytra Plugin by blaxk
+# Plugin Version: 1.5
+language: de
+first_install_completed: true
+game_modes:
+  disable_in_creative: true
+  disable_in_adventure: true
+fireworks:
+  disable_in_spawn_elytra: true
+bedrock:
+  enabled: false
+  sneak_to_boost: true
+messages:
+  show_press_to_boost: false
+  show_boost_activated: true
+  show_creative_disabled: false
+  style: small_caps
+hunger_consumption:
+  enabled: true
+  mode: distance
+  minimum_food_level: 6
+  distance:
+    blocks_per_point: 80.0
+    hunger_cost: 2
+worlds:
+  world:
+    enabled: true
+    activation_mode: double_jump
+    radius: 100
+    spawn_area:
+      mode: advanced
+      area_type: rectangular
+      x: -50.7
+      y: 60
+      z: 20.2
+      x2: 49.3
+      y2: 120
+      z2: -30.9
+    boost:
+      enabled: true
+      strength: 4
+      direction: forward
+      max_boosts: 1
+      boost_cooldown: 0
+      sound: ENTITY_BAT_TAKEOFF
+    f_key:
+      launch_strength: 1.5
+  world_nether:
+    enabled: true
+    activation_mode: f_key
+    radius: 40
+    spawn_area:
+      mode: advanced
+      area_type: circular
+      x: 10
+      y: 70
+      z: -5
+      x2: 0
+      y2: 0
+      z2: 0
+    boost:
+      strength: 6
+      max_boosts: 3
+      boost_cooldown: 2
+    f_key:
+      launch_strength: 2.0
+  World The End:
+    enabled: false
+    radius: 60
+    spawn_area:
+      mode: auto

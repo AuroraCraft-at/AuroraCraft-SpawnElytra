@@ -1,5 +1,5 @@
 name: Feature Request
-description: Suggest a new feature or improvement for SpawnElytra
+description: Suggest a new feature or improvement for AuroraCraft Spawn Elytra
 labels: ["enhancement"]
 body:
   - type: textarea

@@ -1,6 +1,6 @@
-# Contributing to SpawnElytra
+# Contributing to AuroraCraft Spawn Elytra
 
-Thank you for your interest in contributing to SpawnElytra! :)
+Thank you for your interest in contributing! This is AuroraCraft's fork of [SpawnElytra by blaxk](https://github.com/blax-k/SpawnElytra).
 
 ## How to Contribute
 
@@ -26,7 +26,7 @@ Create an issue using the feature request template. Include:
 
 1. **Fork the Repository**
    ```bash
-   git clone https://github.com/blax-k/SpawnElytra.git
+   git clone https://github.com/AuroraCraft-at/SpawnElytra.git
    cd SpawnElytra
    ```
 
@@ -43,7 +43,7 @@ Create an issue using the feature request template. Include:
 
 4. **Build and Test**
    ```bash
-   mvn clean package
+   ./gradlew build
    ```
 
 5. **Commit Your Changes**

@@ -1,269 +1,255 @@
 <div align="center">
-  
-<img width="800" height=auto alt="image" src="https://github.com/user-attachments/assets/8eec0f17-e161-4c61-b6af-8eb1101b9900" />
-<br><br>
 
-![Downloads](https://shieldcn.dev/modrinth/downloads/Egw2R8Fj.svg?logo=modrinth&label=Downloads&variant=outline)
-![CodeFactor](https://shieldcn.dev/badge/CodeFactor-A-green.svg?logo=codefactor&variant=outline)
-![License](https://shieldcn.dev/github/license/blax-k/SpawnElytra.svg?label=License&variant=outline)
-[![Docs](https://shieldcn.dev/badge/Docs-GitBook-blue.svg?logo=gitbook&variant=outline)](https://blaxk.gitbook.io/spawnelytra)
-[![Build](https://shieldcn.dev/github/ci/blax-k/SpawnElytra.svg?label=Build&variant=outline)](https://github.com/blax-k/SpawnElytra/actions/workflows/build.yml)
-<br>
+# ✦ AuroraCraft Spawn Elytra
 
-_Players can use an Elytra-like feature while in spawn and when leaving spawn. You can boost yourself once by pressing the offhand button._
+[![Build](https://github.com/AuroraCraft-at/SpawnElytra/actions/workflows/build.yml/badge.svg)](https://github.com/AuroraCraft-at/SpawnElytra/actions/workflows/build.yml)
+![Paper 1.21+](https://img.shields.io/badge/Paper-1.21%2B-blue)
+![Folia](https://img.shields.io/badge/Folia-supported-green)
+![License MPL-2.0](https://img.shields.io/badge/License-MPL--2.0-orange)
+
+_Im Spawn fliegen wie mit einer Elytra, ohne eine zu tragen. Mit F boostest du dich los._<br>
+_Beliebig viele Spawns, in jeder Welt: Overworld, Nether, End._
+
 </div>
 
-## Features
+AuroraCraft Spawn Elytra ist der Fork von [SpawnElytra von blaxk](https://github.com/blax-k/SpawnElytra)
+für den AuroraCraft-Server, erweitert um mehrere Spawns pro Welt, ein Raketen-Limit
+und Unterstützung für die eigene Elytra der Spieler.
 
-### Core Functionality
-- **Elytra Flying in Spawn Area**: Players can use elytra-like flying within designated spawn areas without needing an actual elytra item
-- **Boost System**: One-time boost functionality using the offhand key (F key by default)
-  - Configurable boost strength and direction (forward or upward)
-  - Customizable sound effects for boost activation
-  - Optional "press to boost" messages
-- **Flexible Spawn Area Definition**: 
-  - Rectangular areas (defined by two corner points)
-  - Circular/radius-based areas (defined by center point and radius)
-  - Auto mode using world spawn point or advanced custom coordinates
-  - Per-world configuration support
+## Neu in 2.0 (gegenüber dem Original)
 
-### Activation Modes
-- **Double Jump**: Double-press space bar to activate elytra
-- **Auto**: Automatically activates when player has air below and is in spawn area
-- **Sneak Jump**: Sneak while jumping to activate elytra
-- **F-Key**: Press F (swap hands key) to activate with an upward launch boost
+- **Mehrere Spawns, in jeder Welt.** Jeder Spawn hat einen Namen, eine Welt und eine Form
+  (Kreis oder Rechteck). Ein Spawn kann jede Einstellung aus `defaults` für sich überschreiben,
+  zum Beispiel einen eigenen Aktivierungsmodus im Nether.
+- **Spawns dürfen sich nicht überlappen.** Wer einen Spawn in einen anderen hinein setzt,
+  bekommt eine Fehlermeldung und es wird nichts gespeichert.
+- **Spawns sind Säulen.** Kreis und Rechteck gelten über die ganze Welthöhe, egal wie hoch man fliegt.
+  (Früher war der Kreis eine Kugel um den Spawnpunkt.)
+- **Raketen nach dem Losboosten.** Raketen funktionieren während des ganzen Flugs, auch nachdem man
+  den Spawn verlassen hat, bis zur Landung. Mit `fireworks.max_rockets` legst du fest, wie viele:
+  `-1` = unbegrenzt, `0` = keine, `10` = höchstens 10 pro Flug.
+- **Eigene Elytra.** Wer schon eine Elytra trägt, fliegt mit seiner eigenen (normales Vanilla-Verhalten,
+  Haltbarkeit inklusive) und bekommt im Spawn trotzdem die Vorteile: Boost mit F und kein Fallschaden.
+  Raketen sind dann nie begrenzt. Bedrock-Spieler mit eigener Elytra behalten sie.
+- **Kein Auto-Updater mehr.** Der Updater des Originals hätte diesen Fork mit der Original-Version
+  überschrieben. Er ist komplett entfernt, ebenso bStats.
+- **Reload-Fehler behoben.** Im Original liefen nach jedem `/se reload` die alten Listener mit der alten
+  Config weiter. Jetzt gibt es einen einzigen Flug-Controller für alle Spawns.
 
-### Configuration & Customization
-- **Per-World Settings**: Configure different elytra settings for each world
-- **Game Mode Restrictions**: 
-  - Option to disable elytra in creative mode (prevents buggy flying)
-  - Option to disable elytra in adventure mode
-- **Firework Control**: Option to disable fireworks when using spawn elytra
-- **Hunger Consumption System**: 
-  - Optional hunger cost for using elytra features
-  - Multiple consumption modes: activation-based, distance-based, or time-based
-  - Configurable minimum food level protection
-- **Message Customization**:
-  - Choose between Classic and Small Caps text styles
-  - Toggle boost-related messages
-  - Configurable creative mode disabled notifications
-  - MiniMessage format support for advanced text formatting and clickable components
+## Funktionen
 
-### Administration & Setup
-- **Interactive Setup Wizard**: Easy-to-use `/spawnelytra setup` command for defining spawn areas
-- **Area Visualization**: `/spawnelytra visualize` command displays spawn area boundaries with particles
-  - Configurable vertical range and particle effects
-  - Enhanced particle options for better visibility
-  - Customizable update frequency and particle size
-- **Settings Menu**: Interactive in-game settings configuration via `/spawnelytra settings`
-- **Configuration Reload**: Hot-reload configuration without server restart
-- **Update Notifications**: Automatic notification when new plugin versions are available
+- **Elytra-Flug im Spawn** ohne Elytra-Item, mit vier Aktivierungsarten:
+  - `double_jump`: zweimal Leertaste
+  - `auto`: automatisch, sobald unter dem Spieler Luft ist
+  - `sneak_jump`: schleichen und springen
+  - `f_key`: F drücken (Hand tauschen), katapultiert den Spieler nach oben
+- **Boost** mit F: Stärke, Richtung (vorwärts/hoch), Anzahl pro Flug, Cooldown und Sound einstellbar.
+- **Kein Fallschaden** während des Flugs und kurz nach der Landung.
+- **Hunger** optional: pro Aktivierung, pro Strecke oder pro Zeit, mit Untergrenze.
+- **Spielmodi**: in Creative/Adventure abschaltbar.
+- **Bedrock (Geyser/Floodgate)**: Bedrock-Spieler bekommen im Spawn eine geschützte Temp-Elytra,
+  ihre Brustplatte wird sicher zurückgegeben. Geboostet wird mit Schleichen.
+- **Setup-Hilfe** im Spiel mit Partikel-Vorschau, **Partikel-Anzeige** aller Spawns.
+- **PlaceholderAPI**, **5 Sprachen** (en, de, es, fr, pl), **Folia**-kompatibel.
 
-### Integrations & Compatibility
-- **Multi-Language Support**: Built-in support for English, German, Spanish, French and Polish
-- **PlaceholderAPI Integration**: Advanced placeholder support for other plugins
-- **Geyser/Floodgate Support**: Full Bedrock Edition support (see below)
-- **Legacy Migration**: Automatic migration from CraftAttackSpawnElytra plugin with detection to prevent re-migration
-- **Metrics**: bStats integration for anonymous usage statistics
+## Installation
 
-### Bedrock (Geyser/Floodgate) Support
-Bedrock Edition clients are authoritative about gliding and refuse to glide without a real
-elytra equipped, so the invisible-elytra trick used for Java players cannot work there.
-Instead, SpawnElytra detects Bedrock players (via the Floodgate API, the Geyser API, or the
-Floodgate UUID format on proxy setups) and:
+1. `auroracraft-spawnelytra-2.0.0.jar` in den `plugins`-Ordner legen.
+2. Server starten. Fertig: Es gibt einen Spawn `world` mit 100 Blöcken Radius um den Weltspawn.
 
-- **Temporary elytra**: While inside the spawn area, Bedrock players receive a protected,
-  unbreakable temporary elytra and deploy it natively (jump, then press jump again while
-  falling). Their original chestplate is stored in the player's own persistent data, which
-  is saved atomically with the inventory and returned automatically when they leave the
-  area, land outside it, log out, die, or the server crashes mid-flight. The temporary
-  elytra cannot be moved, dropped, stored, or duplicated. Other players keep seeing the
-  original chestplate, and the "Sky's the Limit" advancement is granted without the chat
-  broadcast. Players who rejoin mid-flight simply keep flying and get their chestplate
-  back when they land.
-- **Sneak to boost**: Bedrock has no offhand/F key, so Bedrock players boost by pressing
-  sneak while gliding.
-- **No clickable chat**: Bedrock cannot click chat components, so all interactive menus
-  (welcome, settings, setup, update notifications) show plain commands to Bedrock players.
+### Umstieg vom Original-Plugin „SpawnElytra“
 
-### Important:
-The **default language** of this plugin **is English**, but you can change it (e.g. to German) by changing `language: en` to `language: de` in config.yml, or simply use the in-game language picker shown on first install!
+1. **Die alte `SpawnElytra`-Jar entfernen.** Laufen beide gleichzeitig, schaltet sich dieses Plugin
+   ab und schreibt einen Hinweis ins Log.
+2. Beim ersten Start werden `config.yml` und die Spielerstatistiken aus `plugins/SpawnElytra`
+   nach `plugins/AuroraCraftSpawnElytra` kopiert. Der alte Ordner bleibt unverändert.
+3. Die alte Config (1.2 bis 1.5) wird automatisch umgewandelt: **jede Welt wird zu einem Spawn**,
+   alle Einstellungen bleiben erhalten. `fireworks.disable_in_spawn_elytra: true` wird zu
+   `max_rockets: 0`. Die vorherige Datei liegt danach in `backups/`.
+4. Rechte (`spawnelytra.*`), Befehle (`/spawnelytra`, `/se`) und Platzhalter (`%spawnelytra_…%`)
+   heißen gleich wie vorher.
 
-## Configuration
+## Spawns anlegen
 
-<details>
-<summary>Default Config</summary>
+Runder Spawn um die eigene Position:
+
+```
+/se spawn create hub circle 80
+```
+
+Rechteckiger Spawn mit der Setup-Hilfe (zwei Ecken ablaufen):
+
+```
+/se setup netherhub
+/se set pos1
+/se set pos2
+/se setup save
+```
+
+Einstellungen eines einzelnen Spawns ändern, `default` setzt wieder auf den Standardwert:
+
+```
+/se spawn set netherhub activation_mode f_key
+/se spawn set netherhub fireworks.max_rockets 10
+/se spawn set hub radius 120
+/se spawn set hub boost.strength default
+```
+
+Prüfen und verwalten:
+
+```
+/se spawn list
+/se spawn info hub
+/se visualize hub
+/se visualize all
+/se spawn tp netherhub
+/se spawn delete hub confirm
+```
+
+Liegt eine Position oder die neue Fläche in einem anderen Spawn, kommt eine Fehlermeldung
+mit dem Namen des anderen Spawns, und es wird nichts gespeichert. Das gilt auch, wenn ein
+größerer Radius in einen Nachbar-Spawn reichen würde.
+
+## Konfiguration
+
+Die `config.yml` hat drei Teile:
+
+- **globale Einstellungen**: Sprache, Spielmodi, Bedrock, Nachrichten, Partikel, Hunger
+- **`defaults`**: Flug-Einstellungen, die für alle Spawns gelten
+- **`spawns`**: die Spawns selbst, jeweils mit optionalen eigenen Werten
 
 ```yaml
-# Spawn Elytra Plugin by blaxk
-# Plugin Version: 1.5
-# Modrinth: https://modrinth.com/plugin/spawn-elytra
-
-# ==========================================
-# GLOBAL SETTINGS
-# ==========================================
-
-# Available languages: en, de, es, fr, pl
-language: en
-
-# Game mode restrictions
-game_modes:
-  # Automatically disable elytra when player enters creative mode (This prevents buggy flying in Creative)
-  disable_in_creative: true
-  # If you don't want to disable elytra in adventure mode, set this to false
-  disable_in_adventure: false
-
-# Fireworks settings
-fireworks:
-  # Disable fireworks when using spawn elytra (players can still use fireworks if they have a real elytra equipped)
-  disable_in_spawn_elytra: false
-
-# Bedrock (Geyser/Floodgate) support
-bedrock:
-  # Bedrock Edition cannot glide without a real elytra equipped. When enabled,
-  # Bedrock players inside the spawn area receive a temporary elytra. They use
-  # it like a normal elytra: jump, then press jump again while falling. Since
-  # Bedrock has no offhand/F key, Bedrock players always boost by pressing sneak
-  # while gliding.
-  enabled: true
-
-# Message settings
-messages:
-  # Set to false to disable the "press to boost" message
-  show_press_to_boost: true
-  # Set to false to disable the "boost activated" message
-  show_boost_activated: true
-  # Set to true to show an actionbar when Elytra is disabled in Creative mode
-  show_creative_disabled: false
-  # Message style: classic or small_caps
-  style: classic
-
-# Visualization settings for /spawnelytra visualize command
-visualization:
-  # Vertical range above and below player for particle display
-  vertical_range: 20
-  # Additional vertical range for corner/cardinal pillars
-  pillar_vertical_range: 25
-  # Particle update frequency (ticks between updates, lower = more frequent)
-  update_frequency: 10
-  # Particle size multiplier for better visibility from distance
-  particle_size: 2.0
-  # Enable enhanced particles (brighter colors, additional effects)
-  enhanced_particles: true
-
-# Hunger consumption settings (global defaults, can be overridden per-world)
-hunger_consumption:
-  # Enable hunger consumption while using the spawn elytra features
-  enabled: false
-  # How hunger should be consumed: activation, distance, or time
-  mode: activation
-  # Minimum food level to keep (players will never drop below this value)
-  minimum_food_level: 0
-
-  activation:
-    # Hunger consumed each time the elytra activates
-    hunger_cost: 1
-
-  distance:
-    # Blocks travelled while gliding before hunger is consumed
-    blocks_per_point: 50.0
-    # Hunger consumed every time the distance threshold is reached
-    hunger_cost: 1
-
-  time:
-    # Seconds of gliding before hunger is consumed
-    seconds_per_point: 30
-    # Hunger consumed each time the timer elapses
-    hunger_cost: 1
-
-# ==========================================
-# WORLD-SPECIFIC SETTINGS
-# ==========================================
-
-# Configure elytra settings per world
-worlds:
-  # If you want to add another world, copy the entire 'world' section and change the name and preferences
-  world:
-    # Enable spawn elytra in this world
+defaults:
+  activation_mode: double_jump
+  boost:
     enabled: true
+    strength: 4
+    direction: forward      # forward oder upward
+    max_boosts: 1           # Boosts pro Flug
+    boost_cooldown: 0       # Sekunden zwischen Boosts
+    sound: ENTITY_BAT_TAKEOFF
+  f_key:
+    launch_strength: 1.5
+  fireworks:
+    max_rockets: -1         # -1 = unbegrenzt, 0 = keine, z.B. 10 = max. 10 pro Flug
 
-    # Activation mode for elytra:
-    # double_jump: Player needs to double-press space to activate elytra
-    # auto: Automatically activates elytra when player has air below and is in spawn area
-    # sneak_jump: Player needs to sneak while jumping to activate elytra
-    # f_key: Player needs to press F (swap hands) to activate elytra, this also boosts a player upwards on activation
-    activation_mode: double_jump
-
-    # The radius around spawn where elytra boosting is enabled
-    # (only used when area_mode is 'circular' or spawn coords x2/y2/z2 are all 0)
-    radius: 100
-
-    # Spawn area configuration
-    spawn_area:
-      # Mode options: 'auto' or 'advanced'
-      # auto: Uses the world spawn point with radius
-      # advanced: Uses custom spawn coordinates defined below
-      mode: auto
-
-      # Area type: 'circular' or 'rectangular'
-      area_type: circular
-
-      # Primary spawn coordinates (center for circular, first corner for rectangular)
-      x: 0
-      y: 64
-      z: 0
-
-      # Secondary coordinates (only used for rectangular areas)
-      # Setting all to 0 uses circular area with radius instead
-      x2: 0
-      y2: 0
-      z2: 0
-
-    # Boost settings
-    boost:
-      # Enable boost functionality
-      enabled: true
-      # The strength of the boost when pressing the boost key
-      strength: 4
-      # Boost direction: 'forward' or 'upward'
-      # forward: Boosts player in the direction they are looking
-      # upward: Boosts player straight up
-      direction: forward
-      # Maximum number of boosts allowed per elytra flight (1 = single boost)
-      max_boosts: 1
-      # Cooldown in seconds between boosts (0 = no cooldown, only applies when max_boosts > 1)
-      boost_cooldown: 0
-      # Boost sound effect - can be any sound from https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html
-      # Examples: ENTITY_BAT_TAKEOFF, ENTITY_FIREWORK_ROCKET_BLAST, ITEM_ELYTRA_FLYING
-      sound: ENTITY_BAT_TAKEOFF
-
-    # F-key specific settings (only used when activation_mode: f_key)
-    f_key:
-      # Launch strength when pressing F key (1.5 = ~14-15 blocks upward)
-      launch_strength: 1.5
+spawns:
+  world:                    # Name des Spawns
+    world: world
+    enabled: true
+    shape: circle
+    radius: 100             # ohne 'center' zählt der Weltspawn als Mitte
+  netherhub:
+    world: world_nether
+    enabled: true
+    shape: rectangle
+    pos1: {x: -40, z: -40}  # zwei gegenüberliegende Ecken (Blockkoordinaten)
+    pos2: {x: 40, z: 25}
+    activation_mode: f_key  # eigener Wert nur für diesen Spawn
+    fireworks:
+      max_rockets: 10
 ```
+
+Spawns in Welten, die beim Start noch nicht geladen sind, werden aktiv, sobald die Welt geladen ist.
+Ausnahme: Ein Kreis ohne `center` braucht die Welt schon beim Start, weil der Weltspawn die Mitte ist.
+Multiverse-Core wird vor diesem Plugin geladen, damit seine Welten bekannt sind.
+
+<details>
+<summary>Alle Schlüssel, die ein Spawn überschreiben kann</summary>
+
+| Schlüssel | Werte |
+|---|---|
+| `activation_mode` | `double_jump`, `auto`, `sneak_jump`, `f_key` |
+| `boost.enabled` | `true` / `false` |
+| `boost.strength` | Zahl > 0 |
+| `boost.direction` | `forward`, `upward` |
+| `boost.max_boosts` | ganze Zahl ≥ 1 |
+| `boost.boost_cooldown` | Sekunden ≥ 0 |
+| `boost.sound` | Name aus der [Sound-Liste](https://jd.papermc.io/paper/1.21/org/bukkit/Sound.html) |
+| `f_key.launch_strength` | Zahl > 0 |
+| `fireworks.max_rockets` | `-1` (unbegrenzt), `0`, oder eine Anzahl |
+
+Zusätzlich per `/se spawn set`: `enabled` und `radius` (nur Kreise).
+
 </details>
 
-## Commands and Permissions
+## Befehle und Rechte
 
-| Command | Description | Permission | Default |
-|---------|-------------|------------|---------|
-| `/spawnelytra` or `/se` | Show help menu | None | All players |
-| `/spawnelytra reload` | Reload plugin configuration | `spawnelytra.admin` | Operators only |
-| `/spawnelytra update` | Download and install the latest release (requires server restart) | `spawnelytra.admin` | Operators only |
-| `/spawnelytra info` | Display plugin information | None | All players |
-| `/spawnelytra visualize [seconds]` | Visualize the spawn elytra area with particles | `spawnelytra.admin` | Operators only |
-| `/spawnelytra settings` | Open the interactive settings menu | `spawnelytra.admin` | Operators only |
-| `/spawnelytra setup` | Start interactive setup wizard for defining the elytra area | `spawnelytra.admin` | Operators only |
-| `/spawnelytra setup exit` | Exit the setup wizard | `spawnelytra.admin` | Operators only |
-| `/spawnelytra set pos1` | Set the first position in setup mode | `spawnelytra.admin` | Operators only |
-| `/spawnelytra set pos2` | Set the second position in setup mode | `spawnelytra.admin` | Operators only |
-| `/spawnelytra dismiss` | Dismiss the first install welcome message | `spawnelytra.admin` | Operators only |
+Alle Befehle gehen mit `/spawnelytra` oder kurz `/se`.
 
-### Permissions
+| Befehl | Beschreibung |
+|---|---|
+| `/se info` | Version, Sprache, Anzahl Spawns |
+| `/se spawn list` | Alle Spawns |
+| `/se spawn info <name>` | Form, Status und Einstellungen eines Spawns |
+| `/se spawn create <name> circle <radius>` | Runder Spawn um die eigene Position |
+| `/se spawn create <name> rectangle` | Startet die Setup-Hilfe für ein Rechteck |
+| `/se setup <name>` | Setup-Hilfe für einen neuen Spawn, oder bestehenden neu zeichnen |
+| `/se set pos1` / `pos2` | Ecken in der Setup-Hilfe setzen |
+| `/se setup save` / `exit` | Setup speichern oder abbrechen |
+| `/se spawn set <name> <setting> <wert\|default>` | Einstellung eines Spawns ändern |
+| `/se spawn tp <name>` | Zum Spawn teleportieren |
+| `/se spawn delete <name> confirm` | Spawn löschen |
+| `/se visualize [name\|all\|stop] [sekunden]` | Spawn-Grenzen mit Partikeln anzeigen |
+| `/se settings` | Sprache und Nachrichtenstil |
+| `/se reload` | Config neu laden (laufende Flüge enden) |
 
-- `spawnelytra.admin` - Grants access to all administrative commands (reload, visualize, settings, setup)
+| Recht | Standard | Wofür |
+|---|---|---|
+| `spawnelytra.use` | alle | Spawn-Elytra benutzen |
+| `spawnelytra.useboost` | alle | Boost benutzen |
+| `spawnelytra.admin` | OP | Alle Befehle |
 
-## Support
+## Platzhalter (PlaceholderAPI)
 
-If you encounter any issues while using the plugin, please [create an issue](https://github.com/blax-k/SpawnElytra/issues) on GitHub.
+| Platzhalter | Inhalt |
+|---|---|
+| `%spawnelytra_fly_count%` | Anzahl Flüge des Spielers |
+| `%spawnelytra_boost_count%` | Anzahl Boosts |
+| `%spawnelytra_total_count%` | Flüge + Boosts |
+| `%spawnelytra_flying%` | `true` während eines Spawn-Elytra-Flugs |
+| `%spawnelytra_in_area%` | `true` in einem aktiven Spawn |
+| `%spawnelytra_spawn%` | Name des Spawns (des Flugs oder an der Position) |
+| `%spawnelytra_boosts_remaining%` | übrige Boosts in diesem Flug |
+| `%spawnelytra_rockets_remaining%` | übrige Raketen in diesem Flug, `∞` bei unbegrenzt |
+
+## Bedrock (Geyser/Floodgate)
+
+Bedrock-Clients können ohne echte Elytra nicht gleiten. Bedrock-Spieler bekommen deshalb im Spawn
+eine geschützte Temp-Elytra (springen, dann im Fallen nochmal springen). Ihre Brustplatte wird im
+Spielerdatensatz gesichert und beim Verlassen, Landen, Ausloggen, Tod oder nach einem Absturz
+zurückgegeben. Die Temp-Elytra lässt sich nicht verschieben, droppen oder duplizieren, andere
+Spieler sehen weiter die echte Brustplatte. Geboostet wird mit **Schleichen**.
+Bedrock-Spieler, die schon eine eigene Elytra tragen, behalten diese.
+
+## Selbst bauen
+
+Java 21 wird benötigt.
+
+```bash
+./gradlew build
+```
+
+Die Jar liegt danach unter `build/libs/auroracraft-spawnelytra-2.0.0.jar`, die Tests laufen dabei mit.
+
+## Neue Version veröffentlichen
+
+Selbst bauen ist dafür nicht nötig, das macht GitHub:
+
+1. Auf GitHub **Releases → Draft a new release** öffnen.
+2. Unter **Choose a tag** einen neuen Tag mit der Versionsnummer eintragen, z. B. `v2.1.0`
+   (oder `v2.1.0-beta.1` für eine Vorabversion), Ziel-Branch `main`.
+3. Titel und Beschreibung ausfüllen, dann **Publish release**.
+
+Der Workflow [`release.yml`](.github/workflows/release.yml) startet automatisch, baut das Plugin
+mit genau dieser Version (inklusive Tests) und hängt `auroracraft-spawnelytra-2.1.0.jar` an das
+Release an. Nach ein bis zwei Minuten ist die Jar unter **Assets** zum Download da.
+Die Versionsnummer kommt aus dem Tag, `build.gradle.kts` muss dafür nicht geändert werden.
+Schlägt der Build fehl (z. B. ein Test), bleibt das Release ohne Jar. Den Fehler siehst du unter **Actions**.
+
+## Lizenz
+
+[Mozilla Public License 2.0](LICENSE). Basiert auf [SpawnElytra](https://github.com/blax-k/SpawnElytra)
+von blaxk. Geänderte Dateien bleiben unter der MPL 2.0.
+
+Probleme bitte als [Issue](https://github.com/AuroraCraft-at/SpawnElytra/issues) melden.

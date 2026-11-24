@@ -1,10 +1,11 @@
-# Spawn Elytra Plugin by blaxk
-# Plugin Version: 1.5
-# Modrinth: https://modrinth.com/plugin/spawn-elytra
+# ==========================================
+#  AuroraCraft Spawn Elytra
+#  Based on SpawnElytra by blaxk (MPL-2.0)
+#  https://github.com/AuroraCraft-at/SpawnElytra
+# ==========================================
 
-# ==========================================
-# GLOBAL SETTINGS
-# ==========================================
+# Do not change. Used to migrate the config between versions.
+config_version: '2.0'
 
 # Available languages: en, de, es, fr, pl
 language: en
@@ -16,18 +17,13 @@ game_modes:
   # If you don't want to disable elytra in adventure mode, set this to false
   disable_in_adventure: false
 
-# Fireworks settings
-fireworks:
-  # Disable fireworks when using spawn elytra (players can still use fireworks if they have a real elytra equipped)
-  disable_in_spawn_elytra: false
-
 # Bedrock (Geyser/Floodgate) support
 bedrock:
   # Bedrock Edition cannot glide without a real elytra equipped. When enabled,
-  # Bedrock players inside the spawn area receive a temporary elytra. They use
-  # it like a normal elytra: jump, then press jump again while falling. Since
-  # Bedrock has no offhand/F key, Bedrock players always boost by pressing sneak
-  # while gliding.
+  # Bedrock players inside a spawn receive a temporary elytra. They use it like
+  # a normal elytra: jump, then press jump again while falling. Since Bedrock
+  # has no offhand/F key, Bedrock players always boost by pressing sneak while
+  # gliding. Bedrock players who already wear their own elytra keep it.
   enabled: true
 
 # Message settings
@@ -36,12 +32,14 @@ messages:
   show_press_to_boost: true
   # Set to false to disable the "boost activated" message
   show_boost_activated: true
+  # Show how many rockets are left after each rocket (only when fireworks.max_rockets is limited)
+  show_rockets_remaining: true
   # Set to true to show an actionbar when Elytra is disabled in Creative mode
   show_creative_disabled: false
   # Message style: classic or small_caps
   style: classic
 
-# Visualization settings for /spawnelytra visualize command
+# Visualization settings for /spawnelytra visualize
 visualization:
   # Vertical range above and below player for particle display
   vertical_range: 20
@@ -54,7 +52,7 @@ visualization:
   # Enable enhanced particles (brighter colors, additional effects)
   enhanced_particles: true
 
-# Hunger consumption settings (global defaults, can be overridden per-world)
+# Hunger consumption (applies to all spawns; never applies to players flying with their own elytra)
 hunger_consumption:
   # Enable hunger consumption while using the spawn elytra features
   enabled: false
@@ -80,67 +78,69 @@ hunger_consumption:
     hunger_cost: 1
 
 # ==========================================
-# WORLD-SPECIFIC SETTINGS
+# DEFAULTS FOR ALL SPAWNS
 # ==========================================
+# Every spawn uses these values unless it sets the same key itself
+# (see the 'spawns' section below, or use /se spawn set <name> <key> <value>).
+defaults:
+  # Activation mode for elytra:
+  # double_jump: Player needs to double-press space to activate elytra
+  # auto: Automatically activates elytra when player has air below and is in a spawn
+  # sneak_jump: Player needs to sneak while jumping to activate elytra
+  # f_key: Player needs to press F (swap hands) to activate elytra, this also boosts a player upwards on activation
+  # Players who wear their own elytra can also simply deploy it the vanilla way.
+  activation_mode: double_jump
 
-# Configure elytra settings per world
-worlds:
-  # If you want to add another world, copy the entire 'world' section and change the name and preferences
-  world:
-    # Enable spawn elytra in this world
+  # Boost settings
+  boost:
+    # Enable boost functionality
     enabled: true
+    # The strength of the boost when pressing the boost key
+    strength: 4
+    # Boost direction: 'forward' or 'upward'
+    # forward: Boosts player in the direction they are looking
+    # upward: Boosts player straight up
+    direction: forward
+    # Maximum number of boosts allowed per elytra flight (1 = single boost)
+    max_boosts: 1
+    # Cooldown in seconds between boosts (0 = no cooldown, only applies when max_boosts > 1)
+    boost_cooldown: 0
+    # Boost sound effect - can be any sound from https://jd.papermc.io/paper/1.21/org/bukkit/Sound.html
+    # Examples: ENTITY_BAT_TAKEOFF, ENTITY_FIREWORK_ROCKET_BLAST, ITEM_ELYTRA_FLYING
+    sound: ENTITY_BAT_TAKEOFF
 
-    # Activation mode for elytra:
-    # double_jump: Player needs to double-press space to activate elytra
-    # auto: Automatically activates elytra when player has air below and is in spawn area
-    # sneak_jump: Player needs to sneak while jumping to activate elytra
-    # f_key: Player needs to press F (swap hands) to activate elytra, this also boosts a player upwards on activation
-    activation_mode: double_jump
+  # F-key specific settings (only used when activation_mode: f_key)
+  f_key:
+    # Launch strength when pressing F key (1.5 = ~14-15 blocks upward)
+    launch_strength: 1.5
 
-    # The radius around spawn where elytra boosting is enabled
-    # (only used when area_mode is 'circular' or spawn coords x2/y2/z2 are all 0)
+  # Firework rockets during a spawn elytra flight (also after leaving the spawn, until landing)
+  fireworks:
+    # How many rockets a player may use per flight.
+    # -1 = unlimited, 0 = no rockets, e.g. 10 = at most 10 rockets per flight.
+    # Players who wear their own elytra are never limited.
+    max_rockets: -1
+
+# ==========================================
+# SPAWNS
+# ==========================================
+# You can create as many spawns as you like, in any world (Overworld, Nether, End, ...).
+# Spawns must not overlap. Every spawn covers the full height of its world (a column).
+# Easiest way: /se spawn create <name> circle <radius>  or  /se setup <name> (rectangle).
+#
+# A spawn has:
+#   world:   world name
+#   enabled: true/false (a disabled spawn still blocks its area for other spawns)
+#   shape:   circle or rectangle
+#   circle:    radius and center (x, z). Without 'center' the world spawn point is used.
+#   rectangle: pos1 and pos2 (x, z block coordinates of two opposite corners)
+# Optionally any key from 'defaults' to override it for this spawn only, for example:
+#   activation_mode: f_key
+#   fireworks:
+#     max_rockets: 10
+spawns:
+  world:
+    world: world
+    enabled: true
+    shape: circle
     radius: 100
-
-    # Spawn area configuration
-    spawn_area:
-      # Mode options: 'auto' or 'advanced'
-      # auto: Uses the world spawn point with radius
-      # advanced: Uses custom spawn coordinates defined below
-      mode: auto
-
-      # Area type: 'circular' or 'rectangular'
-      area_type: circular
-
-      # Primary spawn coordinates (center for circular, first corner for rectangular)
-      x: 0
-      y: 64
-      z: 0
-
-      # Secondary coordinates (only used for rectangular areas)
-      # Setting all to 0 uses circular area with radius instead
-      x2: 0
-      y2: 0
-      z2: 0
-
-    # Boost settings
-    boost:
-      # Enable boost functionality
-      enabled: true
-      # The strength of the boost when pressing the boost key
-      strength: 4
-      # Boost direction: 'forward' or 'upward'
-      # forward: Boosts player in the direction they are looking
-      # upward: Boosts player straight up
-      direction: forward
-      # Maximum number of boosts allowed per elytra flight (1 = single boost)
-      max_boosts: 1
-      # Cooldown in seconds between boosts (0 = no cooldown, only applies when max_boosts > 1)
-      boost_cooldown: 0
-      # Boost sound effect - can be any sound from https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html
-      # Examples: ENTITY_BAT_TAKEOFF, ENTITY_FIREWORK_ROCKET_BLAST, ITEM_ELYTRA_FLYING
-      sound: ENTITY_BAT_TAKEOFF
-
-    # F-key specific settings (only used when activation_mode: f_key)
-    f_key:
-      # Launch strength when pressing F key (1.5 = ~14-15 blocks upward)
-      launch_strength: 1.5
