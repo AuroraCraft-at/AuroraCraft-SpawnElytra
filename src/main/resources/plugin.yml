@@ -1,28 +1,30 @@
-﻿name: SpawnElytra
+name: AuroraCraftSpawnElytra
 version: ${version}
-main: com.blaxk.spawnelytra.Main
-description: Players can use an invisible elytra in a defined area when double jumping
-author: blaxk
-website: https://modrinth.com/plugin/spawn-elytra
-prefix: Spawn Elytra
+main: at.auroracraft.spawnelytra.Main
+description: Spawn elytra for AuroraCraft with multiple spawns in any world. Based on SpawnElytra by blaxk.
+authors: [AuroraCraft]
+contributors: [blaxk]
+website: https://github.com/AuroraCraft-at/SpawnElytra
+prefix: AuroraCraft Spawn Elytra
 api-version: 1.21
 folia-supported: true
 
-softdepend: [PlaceholderAPI, floodgate, Geyser-Spigot]
+# Multiverse-Core is listed so its worlds exist before spawns are loaded.
+softdepend: [PlaceholderAPI, floodgate, Geyser-Spigot, Multiverse-Core]
 
 commands:
   spawnelytra:
-    description: Main command for the Spawn Elytra plugin
-    usage: /spawnelytra [reload|info|update|visualize|settings|options|setup]
+    description: Main command of AuroraCraft Spawn Elytra
+    usage: /spawnelytra [info|spawn|setup|visualize|settings|reload]
     permission: spawnelytra.admin
     aliases: [se]
 
 permissions:
   spawnelytra.admin:
-    description: Allows access to admin commands
+    description: Allows access to admin commands (spawns, setup, reload, settings)
     default: op
   spawnelytra.use:
-    description: Allows players to use the elytra boost feature
+    description: Allows players to use the spawn elytra
     default: true
   spawnelytra.useboost:
     description: Allows players to use the boost feature
