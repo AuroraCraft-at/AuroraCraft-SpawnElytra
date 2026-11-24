@@ -232,6 +232,21 @@ Java 21 wird benötigt.
 
 Die Jar liegt danach unter `build/libs/auroracraft-spawnelytra-2.0.0.jar`, die Tests laufen dabei mit.
 
+## Neue Version veröffentlichen
+
+Selbst bauen ist dafür nicht nötig, das macht GitHub:
+
+1. Auf GitHub **Releases → Draft a new release** öffnen.
+2. Unter **Choose a tag** einen neuen Tag mit der Versionsnummer eintragen, z. B. `v2.1.0`
+   (oder `v2.1.0-beta.1` für eine Vorabversion), Ziel-Branch `main`.
+3. Titel und Beschreibung ausfüllen, dann **Publish release**.
+
+Der Workflow [`release.yml`](.github/workflows/release.yml) startet automatisch, baut das Plugin
+mit genau dieser Version (inklusive Tests) und hängt `auroracraft-spawnelytra-2.1.0.jar` an das
+Release an. Nach ein bis zwei Minuten ist die Jar unter **Assets** zum Download da.
+Die Versionsnummer kommt aus dem Tag, `build.gradle.kts` muss dafür nicht geändert werden.
+Schlägt der Build fehl (z. B. ein Test), bleibt das Release ohne Jar. Den Fehler siehst du unter **Actions**.
+
 ## Lizenz
 
 [Mozilla Public License 2.0](LICENSE). Basiert auf [SpawnElytra](https://github.com/blax-k/SpawnElytra)

@@ -4,7 +4,8 @@ plugins {
 }
 
 group = "at.auroracraft"
-version = "2.0.0"
+// Release builds pass the version from the Git tag: ./gradlew build -PreleaseVersion=2.1.0
+version = providers.gradleProperty("releaseVersion").getOrElse("2.0.0")
 
 java {
     toolchain {
