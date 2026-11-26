@@ -9,6 +9,7 @@ package at.auroracraft.spawnelytra.setup;
 import at.auroracraft.spawnelytra.Main;
 import at.auroracraft.spawnelytra.util.MessageUtil;
 import at.auroracraft.spawnelytra.util.SchedulerUtil;
+import at.auroracraft.spawnelytra.visual.ParticleScope;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -148,8 +149,10 @@ public class SetupSession {
                 final double progress = Math.min(1.0, (double) this.tick / this.total);
                 final double currentY = minY + (maxY - minY) * progress;
 
-                SetupSession.this.drawFilledPlane(minX, minZ, maxX, maxZ, currentY, 1.0);
-                SetupSession.this.drawRectangleOnY(minX, minZ, maxX, maxZ, currentY, 1.0);
+                // Edges first, then a sparse fill: both only near the player and within the particle budget.
+                final ParticleScope scope = ParticleScope.of(SetupSession.this.plugin, SetupSession.this.player);
+                SetupSession.this.drawRectangleOnY(scope, minX, minZ, maxX, maxZ, currentY, 1.0);
+                SetupSession.this.drawFilledPlane(scope, minX, minZ, maxX, maxZ, currentY, 2.0);
                 this.tick++;
                 if (this.total < this.tick) {
                     SetupSession.this.animateTask.cancel();
@@ -169,46 +172,40 @@ public class SetupSession {
                 this.previewTask.cancel();
                 return;
             }
-            this.drawBoxEdges(1.0, minX, minY, minZ, maxX, maxY, maxZ);
+            this.drawBoxEdges(ParticleScope.of(this.plugin, this.player), 1.0, minX, minY, minZ, maxX, maxY, maxZ);
         });
     }
 
-    private void drawBoxEdges(final double progress, final double minX, final double minY, final double minZ, final double maxX, final double maxY, final double maxZ) {
+    private void drawBoxEdges(final ParticleScope scope, final double progress, final double minX, final double minY,
+                              final double minZ, final double maxX, final double maxY, final double maxZ) {
         final double y1 = minY;
         final double y2 = minY + (maxY - minY) * progress;
-        final Particle.DustOptions edgeDust = GOLD_EDGE;
-        for (double y = y1; y <= y2; y += 0.5) {
-            this.player.spawnParticle(Particle.DUST, new Location(this.player.getWorld(), minX, y, minZ), 1, 0, 0, 0, 0, edgeDust);
-            this.player.spawnParticle(Particle.DUST, new Location(this.player.getWorld(), minX, y, maxZ), 1, 0, 0, 0, 0, edgeDust);
-            this.player.spawnParticle(Particle.DUST, new Location(this.player.getWorld(), maxX, y, minZ), 1, 0, 0, 0, 0, edgeDust);
-            this.player.spawnParticle(Particle.DUST, new Location(this.player.getWorld(), maxX, y, maxZ), 1, 0, 0, 0, 0, edgeDust);
-        }
-        this.drawRectangleOnY(minX, minZ, maxX, maxZ, y1, progress);
-        this.drawRectangleOnY(minX, minZ, maxX, maxZ, y2, progress);
-    }
-
-    private void drawRectangleOnY(final double minX, final double minZ, final double maxX, final double maxZ, final double y, final double progress) {
-        final Particle.DustOptions gold = GOLD_EDGE;
-        final double xProgress = minX + (maxX - minX) * progress;
-        final double zProgress = minZ + (maxZ - minZ) * progress;
-        for (double x = minX; x <= xProgress; x += 0.5) {
-            this.player.spawnParticle(Particle.DUST, new Location(this.player.getWorld(), x, y, minZ), 1, 0, 0, 0, 0, gold);
-            this.player.spawnParticle(Particle.DUST, new Location(this.player.getWorld(), x, y, maxZ), 1, 0, 0, 0, 0, gold);
-        }
-        for (double z = minZ; z <= zProgress; z += 0.5) {
-            this.player.spawnParticle(Particle.DUST, new Location(this.player.getWorld(), minX, y, z), 1, 0, 0, 0, 0, gold);
-            this.player.spawnParticle(Particle.DUST, new Location(this.player.getWorld(), maxX, y, z), 1, 0, 0, 0, 0, gold);
-        }
-    }
-
-    private void drawFilledPlane(final double minX, final double minZ, final double maxX, final double maxZ, final double y, double spacing) {
-        final Particle.DustOptions gold = GOLD_FILL;
-        if (spacing <= 0) spacing = 1.0;
-        for (double x = minX; x <= maxX; x += spacing) {
-            for (double z = minZ; z <= maxZ; z += spacing) {
-                this.player.spawnParticle(Particle.DUST, new Location(this.player.getWorld(), x, y, z), 1, 0, 0, 0, 0, gold);
+        final double[][] corners = {{minX, minZ}, {minX, maxZ}, {maxX, minZ}, {maxX, maxZ}};
+        for (final double[] c : corners) {
+            if (!scope.near(c[0], c[1])) {
+                continue;
+            }
+            for (double y = y1; y <= y2 && !scope.exhausted(); y += 0.5) {
+                scope.dust(c[0], y, c[1], GOLD_EDGE);
             }
         }
+        this.drawRectangleOnY(scope, minX, minZ, maxX, maxZ, y1, progress);
+        this.drawRectangleOnY(scope, minX, minZ, maxX, maxZ, y2, progress);
+    }
+
+    private void drawRectangleOnY(final ParticleScope scope, final double minX, final double minZ, final double maxX,
+                                  final double maxZ, final double y, final double progress) {
+        final double xProgress = minX + (maxX - minX) * progress;
+        final double zProgress = minZ + (maxZ - minZ) * progress;
+        scope.lineX(minX, xProgress, y, minZ, 0.5, GOLD_EDGE);
+        scope.lineX(minX, xProgress, y, maxZ, 0.5, GOLD_EDGE);
+        scope.lineZ(minZ, zProgress, y, minX, 0.5, GOLD_EDGE);
+        scope.lineZ(minZ, zProgress, y, maxX, 0.5, GOLD_EDGE);
+    }
+
+    private void drawFilledPlane(final ParticleScope scope, final double minX, final double minZ, final double maxX,
+                                 final double maxZ, final double y, final double spacing) {
+        scope.plane(minX, minZ, maxX, maxZ, y, spacing <= 0 ? 1.0 : spacing, GOLD_FILL);
     }
 
     public void setActivationMode(final String activationMode) {

@@ -10,6 +10,10 @@ config_version: '2.0'
 # Available languages: en, de, es, fr, pl
 language: en
 
+# Writes flight events (start, end with reason, glide stopped, entering/leaving a spawn) to the console.
+# Only for troubleshooting; leave false in normal operation.
+debug: false
+
 # Game mode restrictions
 game_modes:
   # Automatically disable elytra when player enters creative mode (This prevents buggy flying in Creative)
@@ -51,6 +55,11 @@ visualization:
   particle_size: 2.0
   # Enable enhanced particles (brighter colors, additional effects)
   enhanced_particles: true
+  # Only draw particles within this many blocks (horizontally) of the player.
+  # Clients don't show particles much further away anyway; large spawns would otherwise flood the client.
+  view_radius: 40
+  # Upper limit of particles sent to one player per draw (setup preview and /se visualize)
+  max_particles: 1500
 
 # Hunger consumption (applies to all spawns; never applies to players flying with their own elytra)
 hunger_consumption:

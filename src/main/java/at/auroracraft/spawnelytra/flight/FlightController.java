@@ -26,6 +26,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
@@ -128,12 +129,15 @@ public final class FlightController implements Listener {
     private final Main plugin;
     private final SpawnRegistry registry;
     private volatile GlobalSettings global;
+    private volatile boolean debug;
 
     private final Map<UUID, FlightSession> sessions = new ConcurrentHashMap<>();
     private final Set<UUID> grantedAllowFlight = ConcurrentHashMap.newKeySet();
     private final Map<UUID, Long> flightEndGrace = new ConcurrentHashMap<>();
     private final Map<UUID, Long> sneakJumpCooldown = new ConcurrentHashMap<>();
     private final Set<UUID> sneakPressed = ConcurrentHashMap.newKeySet();
+    /** Debug only: last known "inside a spawn" / "gliding" state per flying player, to log changes once. */
+    private final Map<UUID, String> debugState = new ConcurrentHashMap<>();
 
     public FlightController(final Main plugin, final SpawnRegistry registry) {
         this.plugin = plugin;
@@ -143,6 +147,15 @@ public final class FlightController implements Listener {
 
     public void reloadSettings() {
         this.global = GlobalSettings.load(this.plugin.getConfig());
+        this.debug = this.plugin.getConfig().getBoolean("debug", false);
+    }
+
+    private void debug(final Player player, final String message) {
+        if (this.debug) {
+            final Location l = player.getLocation();
+            this.plugin.getLogger().info(String.format(Locale.ROOT, "[debug] %s @ %s %.1f %.1f %.1f: %s",
+                    player.getName(), l.getWorld() == null ? "?" : l.getWorld().getName(), l.getX(), l.getY(), l.getZ(), message));
+        }
     }
 
     // ------------------------------------------------------------------ public queries
@@ -294,6 +307,7 @@ public final class FlightController implements Listener {
         if (data != null) {
             data.incrementFlyCount(player);
         }
+        this.debug(player, "flight started in spawn '" + spawn.name() + "' (ownElytra=" + ownElytra + ")");
 
         final SpawnSettings settings = spawn.settings();
         if (this.global.showPressToBoost() && settings.boostEnabled()) {
@@ -315,13 +329,15 @@ public final class FlightController implements Listener {
         }
     }
 
-    private void endFlight(final Player player) {
+    private void endFlight(final Player player, final String reason) {
         final UUID uuid = player.getUniqueId();
         final FlightSession session = this.sessions.remove(uuid);
         this.revokeAllowFlight(player);
+        this.debugState.remove(uuid);
         if (session == null) {
             return;
         }
+        this.debug(player, "flight ended: " + reason);
         if (!session.ownElytra) {
             player.setGliding(false);
         }
@@ -337,7 +353,7 @@ public final class FlightController implements Listener {
     }
 
     public void cleanupPlayer(final Player player) {
-        this.endFlight(player);
+        this.endFlight(player, "cleanup (quit/reload)");
         final UUID uuid = player.getUniqueId();
         this.sneakJumpCooldown.remove(uuid);
         this.sneakPressed.remove(uuid);
@@ -638,8 +654,14 @@ public final class FlightController implements Listener {
             return;
         }
         if (player.isOnGround() || player.getLocation().getBlock().getRelative(BlockFace.DOWN).isLiquid()) {
-            this.endFlight(player);
+            this.endFlight(player, player.isOnGround() ? "landed" : "liquid below");
             return;
+        }
+        if (this.debug) {
+            final String state = "inSpawn=" + (spawn != null) + " gliding=" + player.isGliding();
+            if (!state.equals(this.debugState.put(uuid, state))) {
+                this.debug(player, "flight state changed: " + state);
+            }
         }
         player.setFallDistance(0);
         if (!session.ownElytra && player.isGliding() && this.global.hungerEnabled()) {
@@ -691,7 +713,8 @@ public final class FlightController implements Listener {
         }
     }
 
-    @EventHandler
+    // HIGHEST so that another plugin cannot un-cancel our "keep gliding" decision for a running spawn flight.
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onToggleGlide(final EntityToggleGlideEvent event) {
         if (!(event.getEntity() instanceof final Player player)) {
             return;
@@ -727,11 +750,24 @@ public final class FlightController implements Listener {
         }
         if (this.wearsOwnElytra(player)) {
             // The vanilla elytra stops on landing or in water; end the spawn flight with it.
-            this.endFlight(player);
+            this.endFlight(player, "own elytra stopped gliding");
             return;
         }
         // Without a glider the server stops gliding every tick; keep the invisible elytra open.
         event.setCancelled(true);
+    }
+
+    /** Debug only: reports when gliding of a running spawn flight is stopped anyway. */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onToggleGlideMonitor(final EntityToggleGlideEvent event) {
+        if (!this.debug || event.isGliding() || event.isCancelled() || !(event.getEntity() instanceof final Player player)) {
+            return;
+        }
+        if (this.sessions.containsKey(player.getUniqueId())) {
+            this.debug(player, "glide STOPPED although a spawn flight is running (inSpawn="
+                    + (this.registry.findAt(player.getLocation()) != null) + ", ownElytra=" + this.wearsOwnElytra(player)
+                    + ", bedrock=" + BedrockSupport.isManaged(player) + ")");
+        }
     }
 
     @EventHandler
@@ -742,7 +778,7 @@ public final class FlightController implements Listener {
         final Player player = event.getPlayer();
         if (this.sessions.containsKey(player.getUniqueId())) {
             SchedulerUtil.runAtEntityLater(this.plugin, player, 1L, () -> {
-                this.endFlight(player);
+                this.endFlight(player, "switched to creative");
                 SchedulerUtil.runAtEntityLater(this.plugin, player, 5L, () -> player.setAllowFlight(true));
             });
         }
