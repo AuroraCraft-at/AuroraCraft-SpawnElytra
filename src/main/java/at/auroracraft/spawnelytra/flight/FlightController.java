@@ -115,6 +115,8 @@ public final class FlightController implements Listener {
         double hungerDistance;
         long hungerLastConsumption;
         Location hungerLastLocation;
+        /** Re-opens the invisible elytra every tick; null for own-elytra and Bedrock flights. */
+        volatile SchedulerUtil.TaskHandle keepGliding;
 
         FlightSession(final Spawn spawn, final boolean ownElytra) {
             this.spawn = spawn;
@@ -309,6 +311,13 @@ public final class FlightController implements Listener {
         }
         this.debug(player, "flight started in spawn '" + spawn.name() + "' (ownElytra=" + ownElytra + ")");
 
+        if (!ownElytra && !BedrockSupport.isManaged(player)) {
+            // Without a glider the server clears the gliding flag by itself, e.g. once the player has left
+            // the spawn area. Cancelling the toggle event is not always enough, so re-open it every tick.
+            session.keepGliding = SchedulerUtil.runAtEntityTimer(this.plugin, player, 1L, 1L,
+                    () -> this.keepGliding(player, session));
+        }
+
         final SpawnSettings settings = spawn.settings();
         if (this.global.showPressToBoost() && settings.boostEnabled()) {
             final boolean bedrock = BedrockSupport.isManaged(player);
@@ -329,6 +338,24 @@ public final class FlightController implements Listener {
         }
     }
 
+    /** Re-opens the invisible elytra of a running spawn flight when something closed it. */
+    private void keepGliding(final Player player, final FlightSession session) {
+        if (this.sessions.get(player.getUniqueId()) != session) {
+            final SchedulerUtil.TaskHandle task = session.keepGliding;
+            if (task != null) {
+                task.cancel();
+            }
+            return;
+        }
+        if (player.isGliding() || !player.isOnline() || player.isDead() || player.isInsideVehicle()
+                || player.isOnGround() || this.wearsOwnElytra(player)
+                || !this.isElytraAllowedInMode(player) || this.isExternalFlyActive(player)) {
+            return;
+        }
+        this.debug(player, "gliding was closed during a spawn flight, opening it again");
+        player.setGliding(true);
+    }
+
     private void endFlight(final Player player, final String reason) {
         final UUID uuid = player.getUniqueId();
         final FlightSession session = this.sessions.remove(uuid);
@@ -336,6 +363,10 @@ public final class FlightController implements Listener {
         this.debugState.remove(uuid);
         if (session == null) {
             return;
+        }
+        final SchedulerUtil.TaskHandle keepGliding = session.keepGliding;
+        if (keepGliding != null) {
+            keepGliding.cancel();
         }
         this.debug(player, "flight ended: " + reason);
         if (!session.ownElytra) {
